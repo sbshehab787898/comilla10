@@ -177,9 +177,9 @@
                 <form id="voterForm" class="space-y-4">
                     <div>
                         <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">অনুসন্ধানের ধরণ</label>
-                        <select id="type"
+                        <select id="type" onchange="handleTypeChange(this.value)"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 text-sm">
-                            <option value="voter_id">জাতীয় পরিচয়পত্র (NID)</option>
+                            <option value="voter_id">ভোটার নাম্বার (১২ ডিজিট)</option>
                             <option value="name">ভোটারের নাম</option>
                             <option value="fathers_name">পিতার নাম</option>
                             <option value="mothers_name">মাতার নাম</option>
@@ -187,8 +187,8 @@
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">আইডি নম্বর বা নাম</label>
-                        <input type="text" id="value" placeholder="সঠিক নাম বা নম্বর লিখুন..." required
+                        <label id="inputLabel" class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">১২ ডিজিটের ভোটার নাম্বার</label>
+                        <input type="text" id="value" placeholder="এখানে লিখুন..." required
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
 
@@ -262,6 +262,20 @@
     <script>
         const API_BASE = "https://comilla.sbshehab2004.workers.dev/";
 
+        function handleTypeChange(val) {
+            const label = document.getElementById('inputLabel');
+            const input = document.getElementById('value');
+            if (val === 'voter_id') {
+                label.innerText = "১২ ডিজিটের ভোটার নাম্বার";
+                input.placeholder = "১২ ডিজিটের নম্বরটি লিখুন...";
+                input.maxLength = 12;
+            } else {
+                label.innerText = "আইডি নম্বর বা নাম";
+                input.placeholder = "সঠিক নাম বা নম্বর লিখুন...";
+                input.maxLength = 100;
+            }
+        }
+
         function showPage(pageId) {
             document.querySelectorAll('.page-view').forEach(p => {
                 p.classList.remove('active-view');
@@ -309,14 +323,23 @@
 
         document.getElementById('voterForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            showPage('loadingView');
+            
             const type = document.getElementById('type').value;
             let val = document.getElementById('value').value.trim();
+            
+            // 12 digit validation for voter_id
+            if(type === 'voter_id' && val.length !== 12) {
+                alert("অনুগ্রহ করে ১২ ডিজিটের সঠিক ভোটার নাম্বার দিন।");
+                return;
+            }
+
+            showPage('loadingView');
             const d = document.getElementById('day').value;
             const m = document.getElementById('month').value;
             const y = document.getElementById('year').value;
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 20000);
+            
             try {
                 const url = `${API_BASE}?type=${type}&value=${encodeURIComponent(val)}&day=${d}&month=${m}&year=${y}`;
                 const res = await fetch(url, { signal: controller.signal });
@@ -373,7 +396,7 @@
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase mb-1">NID নম্বর</p>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase mb-1">ভোটার নম্বর</p>
                                     <h3 class="text-lg font-black text-gray-900">${voter.voter_id}</h3>
                                 </div>
                             </div>
@@ -404,6 +427,9 @@
                 container.insertAdjacentHTML('beforeend', card);
             });
         }
+
+        // Initialize with correct state
+        handleTypeChange('voter_id');
     </script>
 </body>
 
