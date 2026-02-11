@@ -56,6 +56,47 @@
             color: white;
         }
 
+        .input-group {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .custom-input {
+            width: 100%;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 12px 12px 40px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .custom-input:focus {
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
         .info-row {
             display: flex;
             padding: 12px 0;
@@ -79,37 +120,14 @@
             word-break: break-word;
         }
 
-        .calendar-wrapper {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .calendar-input-hidden {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
         @media (max-width: 640px) {
             .info-label {
                 width: 90px;
                 min-width: 90px;
                 font-size: 12px;
             }
-
             .info-value {
                 font-size: 13px;
-            }
-
-            .container {
-                padding-left: 12px;
-                padding-right: 12px;
             }
         }
 
@@ -148,12 +166,17 @@
 
     <!-- PAGE 1: SEARCH PAGE -->
     <div id="homeView" class="page-view active-view no-print">
-        <nav class="bg-white border-b py-3 px-4 sticky top-0 z-50 shadow-sm flex items-center space-x-3">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-zpSyzgpoLHqbryMlyYozE89KtwDhzhusMA&s"
-                class="w-9 h-9 rounded-full border" alt="Logo">
-            <div>
-                <h1 class="text-lg font-black text-gray-800 leading-none">VoterInfo</h1>
-                <p class="text-[8px] text-green-700 font-bold uppercase tracking-widest">সবার আগে বাংলাদেশ</p>
+        <nav class="bg-white border-b py-3 px-4 sticky top-0 z-50 shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-zpSyzgpoLHqbryMlyYozE89KtwDhzhusMA&s"
+                    class="w-9 h-9 rounded-full border" alt="Logo">
+                <div>
+                    <h1 class="text-lg font-black text-gray-800 leading-none">VoterInfo</h1>
+                    <p class="text-[8px] text-green-700 font-bold uppercase tracking-widest">সবার আগে বাংলাদেশ</p>
+                </div>
+            </div>
+            <div class="text-gray-400">
+                <i class="fas fa-bars text-xl"></i>
             </div>
         </nav>
 
@@ -168,17 +191,19 @@
             </div>
 
             <!-- Search Form -->
-            <div class="google-card p-5 md:p-6 shadow-lg">
-                <div class="text-center mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">ভোটার তথ্য অনুসন্ধান</h3>
-                    <div class="h-1 w-12 bg-blue-600 mx-auto mt-1 rounded-full"></div>
+            <div class="google-card p-5 md:p-6 shadow-xl">
+                <div class="flex items-center space-x-2 mb-6">
+                    <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-lg font-black text-gray-800">তথ্য অনুসন্ধান করুন</h3>
                 </div>
 
                 <form id="voterForm" class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">অনুসন্ধানের ধরণ</label>
+                    <!-- Type Selection -->
+                    <div class="input-group">
+                        <label class="text-[11px] font-bold text-blue-600 uppercase ml-1 block mb-1">ধরণ নির্বাচন করুন (মেনু)</label>
+                        <i class="fas fa-list-ul input-icon"></i>
                         <select id="type" onchange="handleTypeChange(this.value)"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 text-sm">
+                            class="custom-input custom-select border-blue-100 bg-blue-50/30">
                             <option value="voter_id">ভোটার নাম্বার (১২ ডিজিট)</option>
                             <option value="name">ভোটারের নাম</option>
                             <option value="fathers_name">পিতার নাম</option>
@@ -186,22 +211,24 @@
                         </select>
                     </div>
 
-                    <div>
-                        <label id="inputLabel" class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">১২ ডিজিটের ভোটার নাম্বার</label>
-                        <input type="text" id="value" placeholder="এখানে লিখুন..." required
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold focus:ring-2 focus:ring-blue-500 text-sm">
+                    <!-- Input Value -->
+                    <div class="input-group">
+                        <label id="inputLabel" class="text-[11px] font-bold text-gray-400 uppercase ml-1 block mb-1">১২ ডিজিটের ভোটার নাম্বার</label>
+                        <i id="inputIcon" class="fas fa-id-card input-icon"></i>
+                        <input type="text" id="value" placeholder="নম্বরটি এখানে লিখুন..." required
+                            class="custom-input">
                     </div>
 
-                    <!-- Date Selection with Auto Focus -->
+                    <!-- Date Selection -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block">জন্ম তারিখ (দিন/মাস/বছর)</label>
-                            <div class="calendar-wrapper text-blue-600 text-[10px] font-bold">
-                                <i class="fas fa-calendar-alt mr-1"></i> ক্যালেন্ডার ব্যবহার করুন
-                                <input type="date" class="calendar-input-hidden" onchange="handleDateSelection(this.value)">
+                            <label class="text-[11px] font-bold text-gray-400 uppercase ml-1 block">জন্ম তারিখ (দিন/মাস/বছর)</label>
+                            <div class="relative flex items-center text-blue-600 text-[11px] font-bold bg-blue-50 px-2 py-0.5 rounded-lg cursor-pointer">
+                                <i class="fas fa-calendar-alt mr-1"></i> ক্যালেন্ডার
+                                <input type="date" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleDateSelection(this.value)">
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 relative">
+                        <div class="grid grid-cols-3 gap-2">
                             <input type="number" id="day" placeholder="দিন" min="1" max="31" required
                                 oninput="if(this.value.length >= 2) document.getElementById('month').focus()"
                                 class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm">
@@ -216,11 +243,26 @@
                     </div>
 
                     <button type="submit"
-                        class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center space-x-2 mt-2">
+                        class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center space-x-2 mt-4">
                         <i class="fas fa-search"></i>
                         <span>তথ্য দেখুন</span>
                     </button>
                 </form>
+
+                <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-center space-x-6 text-gray-400">
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-shield-alt text-lg mb-1"></i>
+                        <span class="text-[9px] font-bold uppercase">নিরাপদ</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-bolt text-lg mb-1 text-yellow-500"></i>
+                        <span class="text-[9px] font-bold uppercase">দ্রুত</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-check-circle text-lg mb-1 text-green-500"></i>
+                        <span class="text-[9px] font-bold uppercase">সঠিক তথ্য</span>
+                    </div>
+                </div>
             </div>
 
             <div class="mt-8 text-center">
@@ -232,23 +274,24 @@
     <!-- LOADING VIEW -->
     <div id="loadingView" class="page-view flex-col items-center justify-center p-6 bg-white text-center">
         <div class="relative">
-            <div class="w-16 h-16 border-4 border-blue-50 rounded-full"></div>
-            <div class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+            <div class="w-20 h-20 border-4 border-blue-50 rounded-full"></div>
+            <div class="w-20 h-20 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0"></div>
+            <i class="fas fa-search absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600 text-xl"></i>
         </div>
         <p class="mt-6 font-black text-gray-800 text-lg">সার্ভার থেকে তথ্য খোঁজা হচ্ছে...</p>
-        <p class="text-sm text-gray-400 font-bold mt-2">আপনার ইন্টারনেটের গতির ওপর ভিত্তি করে ১-১০ সেকেন্ড লাগতে পারে</p>
-        <button onclick="showPage('homeView')" class="mt-8 text-blue-600 font-bold text-sm border-b border-blue-600">ফিরে যান</button>
+        <p class="text-sm text-gray-400 font-bold mt-2">অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন</p>
+        <button onclick="showPage('homeView')" class="mt-8 text-blue-600 font-bold text-sm px-6 py-2 bg-blue-50 rounded-full">ফিরে যান</button>
     </div>
 
-    <!-- PAGE 2: DATA PAGE (RESULT) -->
+    <!-- PAGE 2: RESULT PAGE -->
     <div id="resultView" class="page-view bg-[#f8fafc]">
         <nav class="bg-white border-b py-3 px-4 sticky top-0 z-50 shadow-sm no-print flex justify-between items-center">
             <button onclick="showPage('homeView')"
-                class="text-gray-600 p-2 -ml-2 rounded-full hover:bg-gray-100 transition-all">
-                <i class="fas fa-chevron-left text-lg"></i>
+                class="flex items-center text-gray-800 font-bold bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-all">
+                <i class="fas fa-arrow-left mr-2"></i> পিছনে
             </button>
-            <h1 class="font-black text-gray-800">ভোটার ফলাফল</h1>
-            <div class="w-8"></div>
+            <h1 class="font-black text-gray-800">ভোটার তথ্য</h1>
+            <div class="w-10"></div>
         </nav>
 
         <main class="container mx-auto max-w-lg mt-4 px-3 pb-20">
@@ -265,14 +308,18 @@
         function handleTypeChange(val) {
             const label = document.getElementById('inputLabel');
             const input = document.getElementById('value');
+            const icon = document.getElementById('inputIcon');
+            
             if (val === 'voter_id') {
                 label.innerText = "১২ ডিজিটের ভোটার নাম্বার";
                 input.placeholder = "১২ ডিজিটের নম্বরটি লিখুন...";
                 input.maxLength = 12;
+                icon.className = "fas fa-id-card input-icon";
             } else {
-                label.innerText = "আইডি নম্বর বা নাম";
-                input.placeholder = "সঠিক নাম বা নম্বর লিখুন...";
+                label.innerText = "ভোটারের সঠিক নাম";
+                input.placeholder = "নাম এখানে লিখুন...";
                 input.maxLength = 100;
+                icon.className = "fas fa-user input-icon";
             }
         }
 
@@ -292,7 +339,7 @@
             const parts = dateStr.split('-'); 
             document.getElementById('year').value = parts[0];
             document.getElementById('month').value = parts[1];
-            document.getElementById('day').value = parts[2];
+            document.getElementById('day').value = parseInt(parts[2]);
         }
 
         async function downloadPNG(cardId, fileName) {
@@ -327,7 +374,6 @@
             const type = document.getElementById('type').value;
             let val = document.getElementById('value').value.trim();
             
-            // 12 digit validation for voter_id
             if(type === 'voter_id' && val.length !== 12) {
                 alert("অনুগ্রহ করে ১২ ডিজিটের সঠিক ভোটার নাম্বার দিন।");
                 return;
@@ -376,7 +422,7 @@
                         <div class="action-bar-ui bg-blue-600 p-3 flex flex-col sm:flex-row gap-3 justify-between items-center no-print">
                             <div class="text-center sm:text-left">
                                 <h4 class="font-black text-white text-sm">ভোটার তথ্য কার্ড</h4>
-                                <p class="text-[8px] text-white/70 font-bold uppercase">Download PNG or Print PDF</p>
+                                <p class="text-[8px] text-white/70 font-bold uppercase">PNG অথবা PDF ডাউনলোড করুন</p>
                             </div>
                             <div class="flex gap-2 w-full sm:w-auto">
                                 <button onclick="downloadPNG('${cardId}', 'Voter_${voter.voter_id}')" class="flex-1 sm:flex-none bg-green-500 text-white font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-green-600 transition-colors">
@@ -420,7 +466,7 @@
                         </div>
                         <div class="p-3 bg-gray-50 text-center text-[9px] font-bold border-t border-gray-100">
                             <p class="text-gray-400 mb-1">সংগ্রহের সময়: ${new Date().toLocaleString('bn-BD')}</p>
-                            <p class="text-gray-600">সৌজন্যে : এস বি শিহাব </p>
+                            <p class="text-gray-600">সৌজন্যে: এস বি শিহাব </p>
                         </div>
                     </div>
                 `;
@@ -428,11 +474,9 @@
             });
         }
 
-        // Initialize with correct state
+        // Initialize
         handleTypeChange('voter_id');
     </script>
 </body>
 
-    </html>
-
-
+</html>
