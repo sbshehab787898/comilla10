@@ -188,7 +188,7 @@
                             <option value="name">ভোটারের নাম</option>
                             <option value="fathers_name">পিতার নাম</option>
                             <option value="mothers_name">মাতার নাম</option>
-                            <option id="voterIdOption" value="voter_id">ভোটার নম্বর (বাংলা সংখ্যা)</option>
+                            <option value="voter_id">ভোটার নম্বর (বাংলা সংখ্যা)</option>
                         </select>
                     </div>
 
@@ -291,22 +291,32 @@
         function validateInput(input) {
             const type = document.getElementById('type').value;
             const warning = document.getElementById('warningMsg');
-            let original = input.value;
+            let val = input.value;
 
-            if (type === 'voter_id') {
-                let converted = original.split('').map(char => enToBn[char] || char).join('');
+            val = val.replace(/\s\s+/g, ' ');
+
+            if (type !== 'voter_id') {
+                if (type === 'name' || type === 'fathers_name') {
+                    if (val === "মো ") { val = "মোঃ "; }
+                } else if (type === 'mothers_name') {
+                    if (val === "মোসা ") { val = "মোসাঃ "; }
+                }
+
+                const allowedRegex = /^[\u0980-\u09FF\s।ঃ]*$/;
+                if (!allowedRegex.test(val) || /[0-9\u09E6-\u09EFa-zA-Z]/.test(val)) {
+                    input.value = val.replace(/[0-9\u09E6-\u09EFa-zA-Z]/g, '');
+                    warning.style.display = 'block';
+                    warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> সংখ্যা বা ইংরেজি অক্ষর গ্রহণযোগ্য নয়।';
+                } else {
+                    input.value = val;
+                    warning.style.display = 'none';
+                }
+            } else {
+                let converted = val.split('').map(char => enToBn[char] || char).join('');
                 input.value = converted.replace(/[^\u09E6-\u09EF]/g, '');
-                if (/[a-zA-Z]/.test(original)) {
+                if (/[a-zA-Z]/.test(val)) {
                     warning.style.display = 'block';
                     warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ইংরেজি অক্ষর চলবে না, শুধুমাত্র সংখ্যা দিন।';
-                } else { warning.style.display = 'none'; }
-            } else {
-                const filtered = original.replace(/[0-9\u09E6-\u09EF]/g, '');
-                const bengaliRegex = /^[\u0980-\u09FF\s]*$/;
-                if (!bengaliRegex.test(original) || /[0-9\u09E6-\u09EF]/.test(original)) {
-                    input.value = filtered.replace(/[a-zA-Z]/g, '');
-                    warning.style.display = 'block';
-                    warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> সংখ্যা বা ইংরেজি অক্ষর গ্রহণযোগ্য নয়, শুধুমাত্র বাংলা অক্ষর দিন।';
                 } else { warning.style.display = 'none'; }
             }
         }
@@ -317,9 +327,9 @@
             document.getElementById('warningMsg').style.display = 'none';
             input.value = ""; 
             if (val === 'voter_id') {
-                label.innerText = "১২ ডিজিটের ভোটার নাম্বার (বাংলা সংখ্যা)";
+                label.innerText = "ভোটার নম্বর (বাংলা সংখ্যা)";
                 input.placeholder = "১২৩৪৫৬... লিখলে অটোমেটিক বাংলা হবে";
-                input.maxLength = 12;
+                input.maxLength = 13;
             } else {
                 label.innerText = (val === 'fathers_name' ? "পিতার" : val === 'mothers_name' ? "মাতার" : "ভোটারের") + " নাম (ভোটার আইডি অনুযায়ী)";
                 input.placeholder = "সঠিক নাম লিখুন...";
@@ -422,7 +432,6 @@
 
         document.getElementById('voterForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
             const type = document.getElementById('type').value;
             let val = document.getElementById('value').value.trim();
             const d = document.getElementById('day').value;
@@ -519,4 +528,4 @@
         }
     </script>
 </body>
-    </html>
+</html>
