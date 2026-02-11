@@ -7,7 +7,6 @@
     <title>সবার আগে বাংলাদেশ - ভোটার পোর্টাল</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- html2canvas library for PNG download -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
@@ -146,7 +145,6 @@
         <p class="mt-4 font-bold text-lg">ছবি তৈরি করা হচ্ছে...</p>
     </div>
 
-    <!-- PAGE 1: SEARCH PAGE -->
     <div id="homeView" class="page-view active-view no-print">
         <nav class="bg-white border-b py-3 px-4 sticky top-0 z-50 shadow-sm flex items-center space-x-3">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-zpSyzgpoLHqbryMlyYozE89KtwDhzhusMA&s"
@@ -158,7 +156,6 @@
         </nav>
 
         <main class="container mx-auto max-w-lg mt-4 px-3 pb-10">
-            <!-- Header Banner -->
             <div class="google-card mb-5">
                 <img src="https://i.postimg.cc/59QdHBTq/ma-ba-sa-ba-ra-alama-bha-iya.png" class="w-full h-auto block" alt="Banner">
                 <div class="bnp-gradient p-4 text-center">
@@ -167,7 +164,6 @@
                 </div>
             </div>
 
-            <!-- Search Form -->
             <div class="google-card p-5 md:p-6 shadow-lg">
                 <div class="text-center mb-6">
                     <h3 class="text-lg font-bold text-gray-800">ভোটার তথ্য অনুসন্ধান</h3>
@@ -192,7 +188,6 @@
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
 
-                    <!-- Date Selection with Auto Focus -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block">জন্ম তারিখ (দিন/মাস/বছর)</label>
@@ -224,12 +219,11 @@
             </div>
 
             <div class="mt-8 text-center">
-                <p class="text-gray-500 font-bold text-sm">সৌজন্যে: এস বি শিহাব ভূলুয়াপাড়া।</p>
+                <p class="text-gray-500 font-bold text-sm">সৌজন্যে: এস বি শিহাব।</p>
             </div>
         </main>
     </div>
 
-    <!-- LOADING VIEW -->
     <div id="loadingView" class="page-view flex-col items-center justify-center p-6 bg-white text-center">
         <div class="relative">
             <div class="w-16 h-16 border-4 border-blue-50 rounded-full"></div>
@@ -240,7 +234,6 @@
         <button onclick="showPage('homeView')" class="mt-8 text-blue-600 font-bold text-sm border-b border-blue-600">ফিরে যান</button>
     </div>
 
-    <!-- PAGE 2: DATA PAGE (RESULT) -->
     <div id="resultView" class="page-view bg-[#f8fafc]">
         <nav class="bg-white border-b py-3 px-4 sticky top-0 z-50 shadow-sm no-print flex justify-between items-center">
             <button onclick="showPage('homeView')"
@@ -254,7 +247,7 @@
         <main class="container mx-auto max-w-lg mt-4 px-3 pb-20">
             <div id="resultContent" class="space-y-6"></div>
             <div class="mt-8 text-center no-print">
-                <p class="text-gray-500 font-bold text-sm">সৌজন্যে: এস বি শিহাব ভূলুয়াপাড়া।</p>
+                <p class="text-gray-500 font-bold text-sm">সৌজন্যে: এস বি শিহাব।</p>
             </div>
         </main>
     </div>
@@ -420,7 +413,7 @@
                         </div>
                         <div class="p-3 bg-gray-50 text-center text-[9px] font-bold border-t border-gray-100">
                             <p class="text-gray-400 mb-1">সংগ্রহের সময়: ${new Date().toLocaleString('bn-BD')}</p>
-                            <p class="text-gray-600">সৌজন্যে : এস বি শিহাব </p>
+                            <p class="text-gray-600">সৌজন্যে : এস বি শিহাব</p>
                         </div>
                     </div>
                 `;
@@ -433,4 +426,4 @@
     </script>
 </body>
 
-                    </html>
+</html>
