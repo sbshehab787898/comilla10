@@ -37,7 +37,6 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -80,7 +79,6 @@
             word-break: break-word;
         }
 
-        /* Calendar Overlay Style */
         .calendar-wrapper {
             position: relative;
             display: inline-flex;
@@ -116,39 +114,15 @@
         }
 
         @media print {
-            .no-print {
-                display: none !important;
-            }
-
-            .page-view {
-                display: none !important;
-            }
-
-            #resultView {
-                display: block !important;
-                background: white !important;
-            }
-
-            .result-card {
-                margin: 0 !important;
-                border: 1px solid #000 !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
-                page-break-after: always;
-            }
-
-            .print-header {
-                display: flex !important;
-            }
-
-            body {
-                background: white !important;
-            }
+            .no-print { display: none !important; }
+            .page-view { display: none !important; }
+            #resultView { display: block !important; background: white !important; }
+            .result-card { margin: 0 !important; border: 1px solid #000 !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always; }
+            .print-header { display: flex !important; }
+            body { background: white !important; }
         }
 
-        .print-header {
-            display: none;
-        }
+        .print-header { display: none; }
 
         #exportLoading {
             display: none;
@@ -176,7 +150,7 @@
     <div id="homeView" class="page-view active-view no-print">
         <nav class="bg-white border-b py-3 px-4 sticky top-0 z-50 shadow-sm flex items-center space-x-3">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-zpSyzgpoLHqbryMlyYozE89KtwDhzhusMA&s"
-                class="w-9 h-9 rounded-full border">
+                class="w-9 h-9 rounded-full border" alt="Logo">
             <div>
                 <h1 class="text-lg font-black text-gray-800 leading-none">VoterInfo</h1>
                 <p class="text-[8px] text-green-700 font-bold uppercase tracking-widest">সবার আগে বাংলাদেশ</p>
@@ -186,7 +160,7 @@
         <main class="container mx-auto max-w-lg mt-4 px-3 pb-10">
             <!-- Header Banner -->
             <div class="google-card mb-5">
-                <img src="https://i.postimg.cc/59QdHBTq/ma-ba-sa-ba-ra-alama-bha-iya.png" class="w-full h-auto block">
+                <img src="https://i.postimg.cc/59QdHBTq/ma-ba-sa-ba-ra-alama-bha-iya.png" class="w-full h-auto block" alt="Banner">
                 <div class="bnp-gradient p-4 text-center">
                     <h2 class="text-xl font-black md:text-2xl">মোবাশ্বের আলম ভুঁইয়া</h2>
                     <p class="text-yellow-400 font-bold text-base md:text-lg">কে ধানের শীষ মার্কায় ভোট দিন</p>
@@ -202,8 +176,7 @@
 
                 <form id="voterForm" class="space-y-4">
                     <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">অনুসন্ধানের
-                            ধরণ</label>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">অনুসন্ধানের ধরণ</label>
                         <select id="type"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 text-sm">
                             <option value="voter_id">জাতীয় পরিচয়পত্র (NID)</option>
@@ -214,36 +187,30 @@
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">আইডি নম্বর বা
-                            নাম</label>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">আইডি নম্বর বা নাম</label>
                         <input type="text" id="value" placeholder="সঠিক নাম বা নম্বর লিখুন..." required
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
 
-                    <!-- Date Selection -->
+                    <!-- Date Selection with Auto Focus -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block">জন্ম তারিখ
-                                (দিন/মাস/বছর)</label>
-
-                            <!-- Calendar Trigger wrapper -->
+                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block">জন্ম তারিখ (দিন/মাস/বছর)</label>
                             <div class="calendar-wrapper text-blue-600 text-[10px] font-bold">
                                 <i class="fas fa-calendar-alt mr-1"></i> ক্যালেন্ডার ব্যবহার করুন
-                                <!-- This hidden input sits on top and triggers the browser's native picker -->
-                                <input type="date" class="calendar-input-hidden"
-                                    onchange="handleDateSelection(this.value)">
+                                <input type="date" class="calendar-input-hidden" onchange="handleDateSelection(this.value)">
                             </div>
                         </div>
                         <div class="grid grid-cols-3 gap-2 relative">
-                            <input type="number" id="day" placeholder="DD" min="1" max="31" required
+                            <input type="number" id="day" placeholder="দিন" min="1" max="31" required
                                 oninput="if(this.value.length >= 2) document.getElementById('month').focus()"
                                 class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm">
 
-                            <input type="number" id="month" placeholder="MM" min="1" max="12" required
+                            <input type="number" id="month" placeholder="মাস" min="1" max="12" required
                                 oninput="if(this.value.length >= 2) document.getElementById('year').focus()"
                                 class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm">
 
-                            <input type="number" id="year" placeholder="YYYY" min="1900" max="2026" required
+                            <input type="number" id="year" placeholder="বছর" min="1900" max="2026" required
                                 class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 text-center font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         </div>
                     </div>
@@ -255,6 +222,10 @@
                     </button>
                 </form>
             </div>
+
+            <div class="mt-8 text-center">
+                <p class="text-gray-500 font-bold text-sm">সৌজন্যে: এস বি শিহাব ভূলুয়াপাড়া।</p>
+            </div>
         </main>
     </div>
 
@@ -262,15 +233,11 @@
     <div id="loadingView" class="page-view flex-col items-center justify-center p-6 bg-white text-center">
         <div class="relative">
             <div class="w-16 h-16 border-4 border-blue-50 rounded-full"></div>
-            <div
-                class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0">
-            </div>
+            <div class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0"></div>
         </div>
         <p class="mt-6 font-black text-gray-800 text-lg">সার্ভার থেকে তথ্য খোঁজা হচ্ছে...</p>
-        <p class="text-sm text-gray-400 font-bold mt-2">আপনার ইন্টারনেটের গতির ওপর ভিত্তি করে ১-১০ সেকেন্ড লাগতে পারে
-        </p>
-        <button onclick="showPage('homeView')"
-            class="mt-8 text-blue-600 font-bold text-sm border-b border-blue-600">ফিরে যান</button>
+        <p class="text-sm text-gray-400 font-bold mt-2">আপনার ইন্টারনেটের গতির ওপর ভিত্তি করে ১-১০ সেকেন্ড লাগতে পারে</p>
+        <button onclick="showPage('homeView')" class="mt-8 text-blue-600 font-bold text-sm border-b border-blue-600">ফিরে যান</button>
     </div>
 
     <!-- PAGE 2: DATA PAGE (RESULT) -->
@@ -286,6 +253,9 @@
 
         <main class="container mx-auto max-w-lg mt-4 px-3 pb-20">
             <div id="resultContent" class="space-y-6"></div>
+            <div class="mt-8 text-center no-print">
+                <p class="text-gray-500 font-bold text-sm">সৌজন্যে: এস বি শিহাব ভূলুয়াপাড়া।</p>
+            </div>
         </main>
     </div>
 
@@ -303,10 +273,9 @@
             window.scrollTo(0, 0);
         }
 
-        // Auto-fill day/month/year boxes from calendar selection
         function handleDateSelection(dateStr) {
             if (!dateStr) return;
-            const parts = dateStr.split('-'); // YYYY-MM-DD
+            const parts = dateStr.split('-'); 
             document.getElementById('year').value = parts[0];
             document.getElementById('month').value = parts[1];
             document.getElementById('day').value = parts[2];
@@ -315,31 +284,23 @@
         async function downloadPNG(cardId, fileName) {
             const overlay = document.getElementById('exportLoading');
             overlay.style.display = 'flex';
-
             const card = document.getElementById(cardId);
-
             try {
-                const actionButtons = card.querySelector('.action-bar-ui');
-                if (actionButtons) actionButtons.style.display = 'none';
-
+                const actionBars = card.querySelectorAll('.action-bar-ui, .promo-bar-ui');
+                actionBars.forEach(bar => bar.style.display = 'none');
                 const canvas = await html2canvas(card, {
                     scale: 3,
                     useCORS: true,
                     backgroundColor: "#ffffff",
-                    logging: false,
-                    windowWidth: card.scrollWidth,
-                    windowHeight: card.scrollHeight
+                    logging: false
                 });
-
-                if (actionButtons) actionButtons.style.display = 'flex';
-
+                actionBars.forEach(bar => bar.style.display = 'block');
                 const image = canvas.toDataURL("image/png");
                 const link = document.createElement('a');
                 link.download = fileName + '.png';
                 link.href = image;
                 link.click();
             } catch (err) {
-                console.error("Export Error:", err);
                 alert("ছবি ডাউনলোড করতে সমস্যা হয়েছে। দয়া করে স্ক্রিনশট নিন।");
             } finally {
                 overlay.style.display = 'none';
@@ -349,33 +310,23 @@
         document.getElementById('voterForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             showPage('loadingView');
-
             const type = document.getElementById('type').value;
             let val = document.getElementById('value').value.trim();
             const d = document.getElementById('day').value;
             const m = document.getElementById('month').value;
             const y = document.getElementById('year').value;
-
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 20000);
-
-            async function fetchData(s_type, s_val) {
-                const url = `${API_BASE}?type=${s_type}&value=${encodeURIComponent(s_val)}&day=${d}&month=${m}&year=${y}`;
-                try {
-                    const res = await fetch(url, { signal: controller.signal });
-                    return await res.json();
-                } catch (e) { return { success: false, error: e.name }; }
-            }
-
             try {
-                let data = await fetchData(type, val);
+                const url = `${API_BASE}?type=${type}&value=${encodeURIComponent(val)}&day=${d}&month=${m}&year=${y}`;
+                const res = await fetch(url, { signal: controller.signal });
+                const data = await res.json();
                 clearTimeout(timeoutId);
-
                 if (data.success && data.results && data.results.length > 0) {
                     renderResults(data.results);
                     showPage('resultView');
                 } else {
-                    alert("দুঃখিত! এই তথ্য দিয়ে কোনো ভোটার পাওয়া যায়নি। সঠিক তথ্য দিন।");
+                    alert("দুঃখিত! এই তথ্য দিয়ে কোনো ভোটার পাওয়া যায়নি।");
                     showPage('homeView');
                 }
             } catch (err) {
@@ -387,7 +338,6 @@
         function renderResults(voters) {
             const container = document.getElementById('resultContent');
             container.innerHTML = '';
-
             voters.forEach((voter, index) => {
                 const cardId = `voter-card-${index}`;
                 const card = `
@@ -400,22 +350,20 @@
                             </div>
                             <img src="https://i.postimg.cc/nzDXwsSz/Gemini-Generated-Image-nygwjhnygwjhnygw-removebg-preview-Picsart-Ai-Image-Enhancer.png" style="height: 50px;">
                         </div>
-
                         <div class="action-bar-ui bg-blue-600 p-3 flex flex-col sm:flex-row gap-3 justify-between items-center no-print">
                             <div class="text-center sm:text-left">
                                 <h4 class="font-black text-white text-sm">ভোটার তথ্য কার্ড</h4>
                                 <p class="text-[8px] text-white/70 font-bold uppercase">Download PNG or Print PDF</p>
                             </div>
                             <div class="flex gap-2 w-full sm:w-auto">
-                                <button onclick="downloadPNG('${cardId}', 'Voter_${voter.voter_id}')" class="flex-1 sm:flex-none bg-green-500 text-white font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-green-600">
+                                <button onclick="downloadPNG('${cardId}', 'Voter_${voter.voter_id}')" class="flex-1 sm:flex-none bg-green-500 text-white font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-green-600 transition-colors">
                                     <i class="fas fa-image mr-1.5"></i> ছবি
                                 </button>
-                                <button onclick="window.print()" class="flex-1 sm:flex-none bg-white text-blue-600 font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-gray-100">
+                                <button onclick="window.print()" class="flex-1 sm:flex-none bg-white text-blue-600 font-black px-3 py-2 rounded-lg text-[11px] shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors">
                                     <i class="fas fa-print mr-1.5"></i> প্রিন্ট
                                 </button>
                             </div>
                         </div>
-
                         <div class="p-5 md:p-6">
                             <div class="flex flex-row justify-between items-start mb-6 pb-4 border-b border-dashed border-gray-200">
                                 <div>
@@ -429,30 +377,27 @@
                                     <h3 class="text-lg font-black text-gray-900">${voter.voter_id}</h3>
                                 </div>
                             </div>
-
                             <div class="space-y-0 mb-6">
                                 <div class="info-row"><span class="info-label">ভোটারের নাম</span><span class="info-value">: ${voter.name}</span></div>
                                 <div class="info-row"><span class="info-label">পিতার নাম</span><span class="info-value">: ${voter.fathers_name}</span></div>
                                 <div class="info-row"><span class="info-label">মাতার নাম</span><span class="info-value">: ${voter.mothers_name}</span></div>
                                 <div class="info-row"><span class="info-label">জন্ম তারিখ</span><span class="info-value text-blue-600">: ${voter.date_of_birth}</span></div>
                             </div>
-                            
                             <div class="p-4 bg-slate-50 rounded-xl border-l-4 border-blue-600 relative overflow-hidden">
                                 <p class="text-[9px] text-blue-500 font-bold uppercase mb-1">ভোট কেন্দ্র ও এলাকা</p>
-                                <h5 class="text-sm font-black text-gray-900 leading-tight mb-1">${voter.vote_center ? voter.vote_center.name : 'তথ্য পাওয়া যায়নি'}</h5>
-                                <p class="text-[11px] font-bold text-gray-500">কেন্দ্র নং: ${voter.vote_center ? voter.vote_center.center_no : 'N/A'}</p>
+                                <h5 class="text-sm font-black text-gray-900 leading-tight mb-1">${voter.vote_center ? (voter.vote_center.name || voter.vote_center) : 'তথ্য পাওয়া যায়নি'}</h5>
+                                <p class="text-[11px] font-bold text-gray-500">কেন্দ্র নং: ${voter.vote_center && voter.vote_center.center_no ? voter.vote_center.center_no : 'N/A'}</p>
                                 <div class="mt-3 pt-3 border-t border-gray-200/60">
-                                    <p class="text-[11px] text-gray-500 font-medium leading-relaxed">${voter.address}</p>
+                                    <p class="text-[11px] text-gray-500 font-medium leading-relaxed">${voter.address || 'ঠিকানা পাওয়া যায়নি'}</p>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="promo-bar-ui bg-green-700 p-3 text-center text-white no-print">
+                        <div class="promo-bar-ui bg-green-700 p-3 text-center text-white">
                             <p class="text-[11px] font-bold italic tracking-wide">“আগামী নির্বাচনে আপনার মূল্যবান ভোট ধানের শীষ মার্কায় দিন”</p>
                         </div>
-                        
-                        <div class="print-header p-3 bg-gray-50 text-center text-[9px] font-bold border-t border-black">
-                            <p>সংগ্রহের সময়: ${new Date().toLocaleString('bn-BD')}</p>
+                        <div class="p-3 bg-gray-50 text-center text-[9px] font-bold border-t border-gray-100">
+                            <p class="text-gray-400 mb-1">সংগ্রহের সময়: ${new Date().toLocaleString('bn-BD')}</p>
+                            <p class="text-gray-600">সৌজন্যে: এস বি শিহাব ভূলুয়াপাড়া।</p>
                         </div>
                     </div>
                 `;
@@ -462,4 +407,4 @@
     </script>
 </body>
 
-</html>
+    </html>
