@@ -434,9 +434,15 @@
             e.preventDefault();
             const type = document.getElementById('type').value;
             let val = document.getElementById('value').value.trim();
-            const d = document.getElementById('day').value;
-            const m = document.getElementById('month').value;
+            
+            // Format Day and Month to always be 2 digits (e.g., 3 becomes 03)
+            const dRaw = document.getElementById('day').value;
+            const mRaw = document.getElementById('month').value;
             const y = document.getElementById('year').value;
+            
+            const d = dRaw.padStart(2, '0');
+            const m = mRaw.padStart(2, '0');
+            
             const dobString = `${d}/${m}/${y}`;
             
             showPage('loadingView');
