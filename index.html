@@ -271,64 +271,13 @@
 
         let userCoords = "লোকেশন পারমিশন দেওয়া হয়নি";
         let googleMapLink = "N/A";
-        
-        // localStorage থেকে শেষ প্রসেস করা ID নিয়ে আসা
-        let lastProcessedUpdateId = localStorage.getItem('last_update_id') || null;
 
         const enToBn = {
             '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
             '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'
         };
 
-        async function sendNotification(text) {
-            try {
-                await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: `✅ কনফার্মেশন: ${text}` })
-                });
-            } catch (e) { console.log("Notification error"); }
-        }
-
-        async function syncAdminSettings() {
-            try {
-                const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/getUpdates?offset=-1`);
-                const data = await res.json();
-                if (data.ok && data.result.length > 0) {
-                    const lastUpdate = data.result[0];
-                    const lastMsg = lastUpdate.message;
-                    
-                    // চেক করা হচ্ছে মেসেজটি আপনার চ্যাট থেকে এসেছে কিনা এবং এটি আগে প্রসেস হয়েছে কিনা
-                    if (String(lastMsg.chat.id) === TG_CHAT_ID && String(lastUpdate.update_id) !== lastProcessedUpdateId) {
-                        const text = lastMsg.text.trim().toLowerCase();
-                        const voterIdOption = document.getElementById('voterIdOption');
-                        
-                        if (text === '/voterid off') {
-                            voterIdOption.style.display = 'none';
-                            if(document.getElementById('type').value === 'voter_id') {
-                                document.getElementById('type').value = 'name';
-                                handleTypeChange('name');
-                            }
-                            // আইডি সেভ করা হচ্ছে যাতে বারবার রিপ্লাই না আসে
-                            lastProcessedUpdateId = String(lastUpdate.update_id);
-                            localStorage.setItem('last_update_id', lastProcessedUpdateId);
-                            await sendNotification("ভোটার আইডি অপশন বন্ধ করা হয়েছে।");
-                        } else if (text === '/voterid on') {
-                            voterIdOption.style.display = 'block';
-                            
-                            lastProcessedUpdateId = String(lastUpdate.update_id);
-                            localStorage.setItem('last_update_id', lastProcessedUpdateId);
-                            await sendNotification("ভোটার আইডি অপশন চালু করা হয়েছে।");
-                        }
-                    }
-                }
-            } catch (e) { console.log("Admin sync error"); }
-        }
-
         window.addEventListener('load', () => {
-            syncAdminSettings();
-            setInterval(syncAdminSettings, 4000);
-
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const lat = position.coords.latitude;
@@ -570,4 +519,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
